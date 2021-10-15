@@ -71,8 +71,7 @@ const HomeScreen = ({ navigation }) => {
         onPress={
           () =>
             navigation.navigate("Expenditure keeper", {
-              name: "calc",
-              greeting: "Hello",
+              user: "Hao",
             })
           // we're passing a parameter name:'Jane' to the Profile component!
         }

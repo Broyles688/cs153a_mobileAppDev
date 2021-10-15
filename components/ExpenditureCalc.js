@@ -6,7 +6,7 @@ import { color } from "react-native-reanimated";
 
 // const mph2fps = (mph) => mph*5280/3600
 
-const ExpenditureCalc = () => {
+const ExpenditureCalc = (props) => {
   const [correct, setCorrect] = useState(0);
   const [answered, setAnswered] = useState(0);
   const [hasAnswered, setHasAnswered] = useState(false);
@@ -17,7 +17,6 @@ const ExpenditureCalc = () => {
   const [isInvalidInput, setInValidInput] = useState(false);
 
   let myTextInput = React.createRef();
-
   /*
   const firstNum = (data) =>{
     return Math.floor(Math.random() * (n+1))
@@ -104,7 +103,9 @@ const ExpenditureCalc = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Keep and add up Expenditures</Text>
+      <Text style={styles.header}>
+        Expenditures for user: {props.route.params.user}
+      </Text>
       <Text style={styles.second_header}>
         Total Expenditure: {currExpenditure}
       </Text>
