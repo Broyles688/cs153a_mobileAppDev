@@ -17,9 +17,6 @@ const BBoards = () => {
   //   const { currentValue } = useValue(
   //     "https://glacial-hamlet-05511.herokuapp.com/"
   //   );
-  const [serverURL, setURL] = useState(
-    "https://glacial-hamlet-05511.herokuapp.com"
-  );
   const [selectedBboard, setSelectedBboard] = useState("");
   const [bboard, setBboard] = useState("");
   const [posts, setPosts] = useState([]);
@@ -54,9 +51,9 @@ const BBoards = () => {
     }
   };
 
-  const storeData = async (newRecords) => {
+  const storeData = async (currRecord) => {
     try {
-      let value = { records: newRecords, id: currID };
+      let value = { records: currRecord, id: currID };
 
       const jsonValue = JSON.stringify(value);
       await AsyncStorage.setItem("@pomodoros", jsonValue);
@@ -90,8 +87,13 @@ const BBoards = () => {
       item: expenditureItem,
       expense: currExpense,
     };
-    let temp = currRecords;
-    temp.push(currRecord);
+    let temp = [];
+    if (currRecords.length == 0) {
+      temp = [currRecord];
+    } else {
+      temp = currRecords;
+      temp.push(currRecord);
+    }
     setCurrRecords(temp);
     setExpenditureItem("");
     setCurrExpense("");
