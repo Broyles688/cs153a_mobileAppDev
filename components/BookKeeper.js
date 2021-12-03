@@ -24,18 +24,63 @@ const BBoards = () => {
   const [posts, setPosts] = useState([]);
   const [numNewPosts, setNumNewPosts] = useState(0);
   const [bbNames, setBbNames] = useState([]);
+  const [currRecords, setCurrRecords] = useState([]);
+  const [expenditureItem, setExpenditureItem] = useState("");
+  const [currExpense, setCurrExpense] = useState("");
+  const [currID, setCurrId] = useState(0);
+
+  const getData = async () => {
+    try {
+      // the '@profile_info' can be any string
+      const jsonValue = await AsyncStorage.getItem("@pomodoros");
+      let data = null;
+      if (jsonValue != null) {
+        data = JSON.parse(jsonValue);
+        setCurrExpenditure(data.currExpenditure);
+        setAnswered(data.answered);
+        console.log("just set Info, Name and Email");
+      } else {
+        console.log("just read a null value from Storage");
+        // this happens the first time the app is loaded
+        // as there is nothing in storage...
+      }
+    } catch (e) {
+      console.log("error in getData ");
+      // this shouldn't happen, but its good practice
+      // to check for errors!
+      console.dir(e);
+      // error reading value
+    }
+  };
+
+  const storeData = async (value) => {
+    try {
+      const jsonValue = JSON.stringify(value);
+      await AsyncStorage.setItem("@pomodoros", jsonValue);
+      console.log("just stored " + jsonValue);
+    } catch (e) {
+      console.log("error in storeData ");
+      console.dir(e);
+      // saving error
+    }
+  };
+
+  const clearAll = async () => {
+    try {
+      setCurrExpenditure(0);
+      setAnswered(0);
+      console.log("in clearData");
+      await AsyncStorage.clear();
+    } catch (e) {
+      console.log("error in clearData ");
+      console.dir(e);
+      // clear error
+    }
+  };
 
   useEffect(() => {
-    // go out to the server and get the posts for the current bboard
-    const getBbNames = async () => {
-      let result = [];
-      result = await Axios.get(serverURL + "/bboardNames");
-      console.log(result.data);
-      setBbNames(result.data);
-    };
-
-    const ps = getBbNames();
-  }, [bboard, numNewPosts]);
+    getData();
+  }, []);
 
   const getPosts = async (itemName) => {
     setSelectedBboard(itemName);
@@ -51,6 +96,20 @@ const BBoards = () => {
     setPosts([]);
   };
 
+  const addRecords = async () => {
+    let currRecord = {
+      _id: currID,
+      item: expenditureItem,
+      expense: currExpense,
+    };
+    let temp = currRecords;
+    temp.push(currRecord);
+    setCurrRecords(temp);
+    setExpenditureItem("");
+    setCurrExpense("");
+    setCurrId(currID + 1);
+    console.log(currRecords);
+  };
   //   const addPost = async () => {
   //     await Axios.post(currentValue.appURL + "/addComment", {
   //       email: currentValue.email,
@@ -104,71 +163,42 @@ const BBoards = () => {
   const Item2 = ({ item }) => {
     return (
       <View style={{ padding: 10, margin: 10, backgroundColor: "#ddd" }}>
-        <Text style={{ fontSize: 24 }}>{item.title}</Text>
-        <Text>{item.text}</Text>
+        <Text style={{ fontSize: 24 }}>{item.item}</Text>
+        <Text>{item.expense}</Text>
       </View>
     );
   };
 
   return (
     <SafeAreaView style={{ flex: 6, flexDirection: "column" }}>
-      <View
-        style={{
-          textAlign: "center",
-          backgroundColor: "black",
-        }}
-      >
-        <Text style={{ fontSize: 30, color: "red", margin: 20 }}>BBViewer</Text>
-      </View>{" "}
-      <View>
-        {" "}
-        <ScrollView horizontal={true}>
-          <View style={{ padding: 2 }}>
-            <Button
-              title="REFRESH BBOARDS"
-              onPress={() => clearSelection()}
-              style={{ padding: 10 }}
-            />
-          </View>
-          <View style={{ flex: 2 }}>
-            <FlatList
-              horizontal={true}
-              data={bbNames}
-              renderItem={({ item }) => <Item item={item} />}
-              keyExtractor={(item) => item._id}
-            />
-          </View>
-        </ScrollView>
-      </View>
-      <View>
-        <Text style={{ fontSize: 24 }}>
-          Selected bboard:
-          <Text style={{ backgroundColor: "#000", color: "#FF4500" }}>
-            {selectedBboard}
-          </Text>
-        </Text>
+      <View style={styles.input}>
+        <Text> Add new Expenditure</Text>
+        <TextInput
+          onChangeText={(text) => setExpenditureItem(text)}
+          value={expenditureItem}
+          placeholder="Expenditure Item"
+        />
+        <TextInput
+          onChangeText={(text) => setCurrExpense(text)}
+          value={currExpense}
+          placeholder="Amount"
+        />
+        <TouchableOpacity
+          onPress={() => addRecords()}
+          style={{ width: 200, backgroundColor: "#fca" }}
+        >
+          <Text>Submit</Text>
+        </TouchableOpacity>
       </View>
       <View style={{ flex: 1 }}>
         {" "}
-        {selectedBboard != "" && (
-          <View style={{ width: "66%" }}>
-            <FlatList
-              data={posts}
-              renderItem={({ item }) => <Item2 item={item} />}
-              keyExtractor={(item) => item._id}
-            />
-          </View>
-        )}
-      </View>
-      <View>
-        <Text>DEBUGGING</Text>
-        <Text>bb:{selectedBboard}</Text>
-        <Text>
-          show:{selectedBboard == "" && "false"}
-          {selectedBboard != "" && "true"}
-        </Text>
-        <Text>bbs.length:{bbNames.length}</Text>
-        <Text>posts:{JSON.stringify(posts)}</Text>
+        <View style={{ width: "66%" }}>
+          <FlatList
+            data={currRecords}
+            renderItem={({ item }) => <Item2 item={item} />}
+            keyExtractor={(item) => item._id}
+          />
+        </View>
       </View>
     </SafeAreaView>
   );

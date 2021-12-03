@@ -44,7 +44,7 @@ const HomeScreen = ({ navigation }) => {
       <Button title="About" onPress={() => navigation.navigate("About")} />
 
       <Button
-        title="Preferences"
+        title="Book Keeper"
         onPress={
           () =>
             navigation.navigate("BookKeeper", {
