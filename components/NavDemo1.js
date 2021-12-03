@@ -6,6 +6,7 @@ import { StyleSheet, Text, View, Button } from "react-native";
 
 import FlexDemo1Screen from "./FlexDemo1";
 import ExpenditureCalc from "./ExpenditureCalc";
+import BookKeeper from "./BookKeeper";
 
 const Stack = createNativeStackNavigator();
 
@@ -19,7 +20,7 @@ const MyStack = () => {
           //options={{ title: 'Welcome' }}
         />
 
-        <Stack.Screen name="Preferences" component={ProfileScreen} />
+        <Stack.Screen name="BookKeeper" component={BookKeeper} />
 
         <Stack.Screen name="About" component={FlexDemo1Screen} />
 
@@ -46,21 +47,9 @@ const HomeScreen = ({ navigation }) => {
         title="Preferences"
         onPress={
           () =>
-            navigation.navigate("Preferences", {
-              name: "setting preferences",
+            navigation.navigate("BookKeeper", {
+              name: "BookKeeper",
               greeting: "Hi!",
-            })
-          // we're passing a parameter name:'Jane' to the Profile component!
-        }
-      />
-
-      <Button
-        title="To be implemented"
-        onPress={
-          () =>
-            navigation.navigate("Preferences", {
-              name: "future development",
-              greeting: "Hello",
             })
           // we're passing a parameter name:'Jane' to the Profile component!
         }
