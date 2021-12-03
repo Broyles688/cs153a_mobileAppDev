@@ -10,6 +10,7 @@ import {
   StyleSheet,
   ScrollView,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Axios from "axios";
 
 const BBoards = () => {
@@ -36,8 +37,8 @@ const BBoards = () => {
       let data = null;
       if (jsonValue != null) {
         data = JSON.parse(jsonValue);
-        setCurrExpenditure(data.currExpenditure);
-        setAnswered(data.answered);
+        setCurrRecords(data.records);
+        setCurrId(data.currID);
         console.log("just set Info, Name and Email");
       } else {
         console.log("just read a null value from Storage");
@@ -53,8 +54,10 @@ const BBoards = () => {
     }
   };
 
-  const storeData = async (value) => {
+  const storeData = async (newRecords) => {
     try {
+      let value = { records: newRecords, id: currID };
+
       const jsonValue = JSON.stringify(value);
       await AsyncStorage.setItem("@pomodoros", jsonValue);
       console.log("just stored " + jsonValue);
@@ -67,8 +70,7 @@ const BBoards = () => {
 
   const clearAll = async () => {
     try {
-      setCurrExpenditure(0);
-      setAnswered(0);
+      setCurrRecords([]);
       console.log("in clearData");
       await AsyncStorage.clear();
     } catch (e) {
@@ -82,21 +84,7 @@ const BBoards = () => {
     getData();
   }, []);
 
-  const getPosts = async (itemName) => {
-    setSelectedBboard(itemName);
-    let result = [];
-    result = await Axios.post(serverURL + "/posts", {
-      bboard: itemName,
-    });
-    setPosts(result.data);
-  };
-
-  const clearSelection = () => {
-    setSelectedBboard("");
-    setPosts([]);
-  };
-
-  const addRecords = async () => {
+  const addRecords = () => {
     let currRecord = {
       _id: currID,
       item: expenditureItem,
@@ -109,6 +97,7 @@ const BBoards = () => {
     setCurrExpense("");
     setCurrId(currID + 1);
     console.log(currRecords);
+    storeData(temp);
   };
   //   const addPost = async () => {
   //     await Axios.post(currentValue.appURL + "/addComment", {
@@ -136,33 +125,10 @@ const BBoards = () => {
   //     setNumNewPosts(numNewPosts + 1);
   //   };
 
-  const Item = ({ item }) => {
-    return (
-      <View style={{ padding: 2 }}>
-        {
-          <TouchableOpacity
-            title={item}
-            onPress={() => getPosts(item)}
-            style={{
-              backgroundColor: "#000",
-              padding: 5,
-              marginVertical: 3,
-              marginHorizontal: 3,
-            }}
-          >
-            <View>
-              <Text style={{ color: "#FF4500", alignContent: "center" }}>
-                {item}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        }
-      </View>
-    );
-  };
   const Item2 = ({ item }) => {
     return (
       <View style={{ padding: 10, margin: 10, backgroundColor: "#ddd" }}>
+        {console.log(item)}
         <Text style={{ fontSize: 24 }}>{item.item}</Text>
         <Text>{item.expense}</Text>
       </View>
@@ -190,15 +156,19 @@ const BBoards = () => {
           <Text>Submit</Text>
         </TouchableOpacity>
       </View>
-      <View style={{ flex: 1 }}>
-        {" "}
-        <View style={{ width: "66%" }}>
-          <FlatList
-            data={currRecords}
-            renderItem={({ item }) => <Item2 item={item} />}
-            keyExtractor={(item) => item._id}
-          />
-        </View>
+      <TouchableOpacity
+        onPress={() => clearAll()}
+        style={{ width: 88, backgroundColor: "#FF4500" }}
+      >
+        <Text>Clear Records</Text>
+      </TouchableOpacity>
+      <View style={{ width: "66%" }}>
+        <FlatList
+          style={{ flex: 1 }}
+          data={currRecords}
+          renderItem={({ item }) => <Item2 item={item} />}
+          keyExtractor={(item) => item._id}
+        />
       </View>
     </SafeAreaView>
   );
